@@ -1,4 +1,5 @@
 library(DESeq2)
+library(ggplot2)
 library(pheatmap)
 
 # Read in the raw read counts
@@ -52,9 +53,13 @@ dds_wt <- estimateSizeFactors(deseq2Data)
 # Unsupervised clustering analysis: log transformation using vst
 vsd_wt <- vst(dds_wt, blind = TRUE)
 
-# Hierarchical clustering with correlation heatmaps
+# Assuming you have already executed the code to calculate vsd_mat_wt and vsd_cor_wt
 vsd_mat_wt <- assay(vsd_wt)
 vsd_cor_wt <- cor(vsd_mat_wt)
+
+# Save vsd_cor_wt as a TSV file
+write.table(vsd_cor_wt, file = "vsd_cor_wt.tsv", sep = "\t", row.names = TRUE, col.names = TRUE)
+
 
 # Add the ggplot code snippet with modified x-axis formatting
 ggplot(data.frame(wt_normal1 = rawCounts[, 1])) +
@@ -78,7 +83,7 @@ pheatmap(data_for_heatmap,
          cluster_cols = TRUE,
          color = colorRampPalette(c("blue", "white", "red"))(50),
          show_rownames = FALSE,
-         show_colnames = TRUE,
+         show_colnames = FALSE,
          row_names_side = "left",
          annotation_colors = "black",
          annotation_names_row = FALSE,
@@ -86,6 +91,7 @@ pheatmap(data_for_heatmap,
          fontsize_row = 8,     # Adjust the font size of row labels
          fontsize_col = 12,    # Adjust the font size of column labels
          angle_col = 45)       # Set the angle of column labels to 45 degrees
+
 
 # Calculate PCA scores
 sample_scores <- as.data.frame(assay(vsd_wt))
@@ -99,5 +105,3 @@ sample_scores$PC2 <- sample_scores$normal * 0.5 + sample_scores$fibrosis * 1 + s
 
 # Print the PCA scores
 print(sample_scores)
-
-
